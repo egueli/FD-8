@@ -67,8 +67,9 @@ int main()
 	set( select_potmeter);
 	spi::init();
 
+	// Initialize ADC for channel 3 (ADC3, PB3, pin 2)
 	adc adc;
-	adc.init( 2);
+	adc.init( 3);
 	make_output( select_potmeter);
 
 	PedalMapper mapper;
