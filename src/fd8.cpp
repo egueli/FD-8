@@ -44,6 +44,21 @@ struct spi_pins {
 	DEFINE_PIN( clk,  B, 2);
 };
 DEFINE_PIN( select_potmeter, B, 1);
+DEFINE_PIN(debug, B, 4);
+
+void dump_to_spi(uint16_t value);
+void dump_to_spi(uint32_t value);
+
+void dump_to_spi(int16_t value)
+{ 
+	dump_to_spi(static_cast<uint16_t>(value));
+}
+
+void dump_to_spi(int32_t value)
+{ 
+	dump_to_spi(static_cast<uint32_t>(value));
+}
+
 
 namespace
 {
@@ -60,9 +75,27 @@ namespace
 	}
 } // unnamed namespace
 
+void dump_to_spi(uint16_t value) {
+	reset( select_potmeter);
+	spi::transmit_receive( static_cast<uint8_t>(value >> 8));
+	spi::transmit_receive( static_cast<uint8_t>(value & 0xff));
+	set( select_potmeter);
+}
+
+void dump_to_spi(uint32_t value) {
+	reset( select_potmeter);
+	spi::transmit_receive( static_cast<uint8_t>( value >> 24));
+	spi::transmit_receive( static_cast<uint8_t>((value >> 16) & 0xff));
+	spi::transmit_receive( static_cast<uint8_t>((value >> 8)  & 0xff));
+	spi::transmit_receive( static_cast<uint8_t>( value        & 0xff));
+	set( select_potmeter);
+}
+
 
 int main()
 {
+	make_output(debug);
+	set(debug);
 
 	set( select_potmeter);
 	spi::init();
@@ -78,8 +111,20 @@ int main()
 	for(;;)
 	{
 		_delay_ms( 1);
+		
+		reset(debug);
+
+		dump_to_spi(min_raw_value);
+		dump_to_spi(max_raw_value);
+
+		dump_to_spi(translation_scale);
+		dump_to_spi(translation_offset);
+
+
 		uint8_t val = mapper.read_scaled_pedal(adc);
 		write_pot( val);
+
+		set(debug);
 	}
 }
 
