@@ -25,9 +25,6 @@
  * FD-8 pedal.
  */
 
-// This file contains AVR-specific stuff. Unit tests should not deal with it.
-#ifndef UNIT_TEST
-
 #include <util/delay.h>
 #include "avr_utilities/devices/bitbanged_spi.h"
 #include "avr_utilities/pin_definitions.hpp"
@@ -81,5 +78,3 @@ int main()
 		write_pot( val);
 	}
 }
-
-#endif // UNIT_TEST
