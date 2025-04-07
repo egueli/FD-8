@@ -115,6 +115,14 @@ private:
 		// the lower part of the range maps onto negative values (see rescale_range() ). All these negative values
 		// are clipped to 0.
 		if (accumulator < 0) accumulator = 0;
+
+		// <=20 = full close
+		// 30-45 = half-close
+		// >=50 = open
+		// Output scale: 32; offset = 15
+		accumulator /= 4;
+
+
 		listener.onMapped(accumulator);
 		return accumulator;
 	}	
