@@ -39,6 +39,12 @@ public:
 		return scale_down( adcvalue);
 	}
 
+	/// Lock the mapper: after calling this function, the calibration remains fixed.
+	void lock()
+	{
+		locked = true;
+	}
+
 private:
 	Listener listener;
 
@@ -56,6 +62,9 @@ private:
 	int32_t translation_scale; ///<this is the distance between lowest ever and highest ever value measured. Negative if voltage increases with pedal-down.
 	int16_t translation_offset; ///< this is either the lowest or highest raw value measured, depending on whether voltage goes up or down if pedal goes down.
 	static const int16_t scale_cutoff = 6;
+
+	// locked state.
+	bool locked = false;
 
 	/// From the maximum and minimum measured ADC values determine:
 	/// * the direction of the pedal (whether the voltage goes up or down when the pedal is depressed).
@@ -91,6 +100,11 @@ private:
 	/// If the min- or max value is adapted then the calibration range will be adapted as well.
 	void note_max_min( int16_t raw_value)
 	{
+		if (locked)
+		{
+			return;
+		}
+		
 		if (raw_value < min_raw_value)
 		{
 			min_raw_value = raw_value;
