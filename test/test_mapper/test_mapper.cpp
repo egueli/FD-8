@@ -70,6 +70,35 @@ void test_calibrationChange(void) {
     TEST_ASSERT_NOT_EQUAL(half_scaled, full_scaled);
 }
 
+/**
+ * @brief Verifies that when the mapper locked, no recalibration occurs.
+ */
+void test_noCalibrationChangeWhenLocked(void) {
+    // GIVEN we have an ADC and a mapper calibrated on a half-push
+    adc adc;
+    PedalMapper<> mapper;
+    adc.test_set(kAdcRest);
+    mapper.init_pedal_calibration(adc);
+    adc.test_set(kAdcHalfPushNorth);
+    mapper.read_scaled_pedal(adc);
+    auto half_scaled = mapper.read_scaled_pedal(adc);
+
+    // WHEN the mapper is locked
+    mapper.lock();
+
+    // AND the foot is fully pressed, then half-pressed again
+    adc.test_set(kAdcFullPushNorth);
+    mapper.read_scaled_pedal(adc);
+    adc.test_set(kAdcHalfPushNorth);
+
+    // THEN the mapper does not recalibrat, and returns the same value
+    // as before the full press.
+    auto full_scaled = mapper.read_scaled_pedal(adc);
+
+    TEST_ASSERT_EQUAL(half_scaled, full_scaled);
+}
+
+
 void dumpMappingTable(uint16_t pushValue) {
     adc adc;
     PedalMapper<> mapper;
@@ -105,6 +134,7 @@ int main( int argc, char **argv) {
     RUN_TEST(test_pushNorth);
     RUN_TEST(test_pushSouth);
     RUN_TEST(test_calibrationChange);
+    RUN_TEST(test_noCalibrationChangeWhenLocked);
 
     // These are not real tests, but are just meant to show the mapper behavior with a
     // table-like output. Run "pio debug -v" or Advanced > Verbose Test to print those
