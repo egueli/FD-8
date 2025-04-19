@@ -78,7 +78,12 @@ int main( int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_pushNorth);
     RUN_TEST(test_pushSouth);
+
+    // These are not real tests, but are just meant to show the mapper behavior with a
+    // table-like output. Run "pio debug -v" or Advanced > Verbose Test to print those
+    // tables.
     RUN_TEST(dump_northTable);
     RUN_TEST(dump_southTable);
+    
     UNITY_END();
 }
