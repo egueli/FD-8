@@ -110,35 +110,19 @@ namespace
 	
 } // unnamed namespace
 
-
-SpiPedalDumper mapperListener;
-
 int main()
 {
-	make_input(lock_button);
-	set(lock_button);
-
 	set( select_potmeter);
 	spi::init();
 
-	adc adc;
-	adc.init( 2);
 	make_output( select_potmeter);
 
-	PedalMapper<> mapper;
-	// PedalMapper<SpiPedalDumper> mapper(mapperListener);
-
-	mapper.init_pedal_calibration(adc);
-	for(;;)
+	for(uint32_t t = 0;; t++)
 	{
 		_delay_ms( 1);
-
-		if (!read(lock_button)) {
-			mapper.lock();
-		}
-
-		uint8_t val = mapper.read_scaled_pedal(adc);
-		write_pot( val);
+		
+		uint8_t value = ((t % 1000) < 500) ? 0 : 255;
+		write_pot(value);		
 	}
 }
 #else
