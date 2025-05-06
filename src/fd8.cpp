@@ -110,6 +110,29 @@ namespace
 	
 } // unnamed namespace
 
+static const uint16_t SEGMENT_MS = 500;     // plateau length
+static const uint16_t RAMP_MS     = 10;      // ramp duration
+static const uint8_t  LEVELS[]    = {0, 255};
+static const uint8_t  NLEVELS     = sizeof(LEVELS);
+
+void ramp(uint8_t from, uint8_t to) {
+	if (from == to) {
+		return;
+	}
+	else if (to > from) {
+		for (int value = from + 1; value <= to; value++) {
+			write_pot(value);
+			_delay_ms(1);
+		}
+	}
+	else {
+		for (int value = from - 1; value >= to; value--) {
+			write_pot(value);
+			_delay_ms(1);
+		}
+	}
+}
+
 int main()
 {
 	set( select_potmeter);
@@ -117,13 +140,17 @@ int main()
 
 	make_output( select_potmeter);
 
-	for(uint32_t t = 0;; t++)
-	{
-		_delay_ms( 1);
-		
-		uint8_t value = ((t % 1000) < 500) ? 0 : 255;
-		write_pot(value);		
+	uint8_t currentSeg = 0;
+	uint8_t nextSeg;
+
+	for (;;) {
+		nextSeg = (currentSeg + 1) % NLEVELS;
+		ramp(LEVELS[currentSeg], LEVELS[nextSeg]);
+
+		_delay_ms(SEGMENT_MS);
+		currentSeg = nextSeg;
 	}
+
 }
 #else
 
