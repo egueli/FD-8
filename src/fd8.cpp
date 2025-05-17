@@ -47,7 +47,7 @@ struct spi_pins {
 	DEFINE_PIN( clk,  B, 2);
 };
 DEFINE_PIN( select_potmeter, B, 1);
-DEFINE_PIN(debug, B, 3);
+DEFINE_PIN( lock_button, B, 3);
 
 namespace
 {
@@ -116,8 +116,8 @@ namespace
 
 int main()
 {
-	make_output(debug);
-	set(debug);
+	make_input(lock_button);
+	set(lock_button);
 
 	set( select_potmeter);
 	spi::init();
@@ -137,10 +137,13 @@ int main()
 	for(;;)
 	{
 		_delay_ms( 1);
-		reset(debug);
+
+		if (!read(lock_button)) {
+			mapper.lock();
+		}
+
 		uint8_t val = mapper.read_scaled_pedal(adc);
 		write_pot( val);
-		set(debug);
 	}
 }
 #else
